@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  
+  
+   
+} 
+
+ 
+datasource db {
+  provider = "postgresql"
+  
+
+}
+
+model TrashReport {
+  id          String   @id @default(uuid())
+  imageUrl    String
+  description String?  @db.VarChar(280) // Twitter-style limit
+  
+  // Location Data
+  latitude    Float
+  longitude   Float
+  
+  // Status tracking for your simple admin view
+  
+  wardNumber   Int ?
+
+  status      ReportStatus @default(PENDING)
+  
+  // ABUSE PROTECTION FIELDS
+  // Store a hash of the IP, not the IP itself (better for privacy/GDPR)
+  ipHash      String 
+   areaName  String?
+  // Metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+ @@index([ ipHash])
+  @@index([latitude, longitude]) // Speeds up local searches
+}
+
+
+enum ReportStatus {
+  PENDING
+  VERIFIED
+  CLEANED
+  SPAM
+}
